@@ -101,8 +101,21 @@ try {
   execSync(`xcopy "${tetrisDistDir}\\*" "${path.resolve(gameDir)}\\" /E /I /Y`, { stdio: 'inherit' });
 
   console.log('Build completed successfully!');
+  
+  // Clean up temporary project directory
+  console.log('Cleaning up temporary files...');
+  execSync(`rimraf ${tempProjectDir}`, { stdio: 'inherit' });
+  console.log('Temporary files cleaned up.');
+  
 } catch (error) {
   console.error('Build failed:', error.message);
+  
+  // Clean up temporary project directory even on failure
+  console.log('Cleaning up temporary files...');
+  if (fs.existsSync(tempProjectDir)) {
+    execSync(`rimraf ${tempProjectDir}`, { stdio: 'inherit' });
+  }
+  
   process.exit(1);
 }
 
