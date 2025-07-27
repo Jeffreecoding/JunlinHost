@@ -98,7 +98,9 @@ try {
   // 5. Copy TetrisGame dist files to game/TetrisGame
   console.log('Copying TetrisGame build files...');
   const tetrisDistDir = path.join(tetrisProject, 'dist');
-  execSync(`xcopy "${tetrisDistDir}\\*" "${path.resolve(gameDir)}\\" /E /I /Y`, { stdio: 'inherit' });
+  
+  // Use Node.js native copy instead of xcopy for cross-platform compatibility
+  copyDir(tetrisDistDir, path.resolve(gameDir));
 
   console.log('Build completed successfully!');
   
@@ -118,6 +120,7 @@ try {
   
   process.exit(1);
 }
+
 
 
 
