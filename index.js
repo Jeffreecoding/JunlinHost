@@ -11,8 +11,12 @@ const port = 3731;
 // Serve static files from the dist directory
 app.use(express.static(path.join(__dirname, '/dist')));
 
-// Handle all routes by serving the index.html
-app.get('*', (req, res) => {
+// Handle all routes by serving the index.html (but only for non-asset requests)
+app.get('*', (req, res, next) => {
+  // Skip if it's a request for assets (js, css, images, etc.)
+  if (req.path.includes('.')) {
+    return next();
+  }
   res.sendFile(path.join(__dirname, '/dist/index.html'));
 });
 
