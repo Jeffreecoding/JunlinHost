@@ -98,3 +98,4 @@ logs
 # Build output (keeping dist since your server serves from it)
 # dist/
 dist
+.dist

@@ -1,12 +1,57 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { config } from 'dotenv';
 
-const projectRoot = 'd:\\project';
-const resumeProject = path.join(projectRoot, 'JunlinsResumeWebsite');
-const tetrisProject = path.join(projectRoot, 'TetrisGame');
+// Load environment variables from .env file
+config();
+
+const tempProjectDir = './tempproject';
+const resumeRepoUrl = 'https://github.com/Jeffreecoding/JunlinsResumeWebsite.git';
+const tetrisRepoUrl = 'https://github.com/Jeffreecoding/TetrisGame.git';
+const resumeProject = path.join(tempProjectDir, 'JunlinsResumeWebsite');
+const tetrisProject = path.join(tempProjectDir, 'TetrisGame');
 const distDir = './dist';
 const gameDir = path.join(distDir, 'game', 'TetrisGame');
+
+// Check for GitHub token
+const githubToken = process.env.GITHUB_TOKEN;
+if (!githubToken) {
+  console.error('Error: GITHUB_TOKEN environment variable is required for private repositories');
+  console.log('Please set GITHUB_TOKEN with your GitHub Personal Access Token');
+  process.exit(1);
+}
+
+const authenticatedResumeUrl = `https://${githubToken}@github.com/Jeffreecoding/JunlinsResumeWebsite.git`;
+const authenticatedTetrisUrl = `https://${githubToken}@github.com/Jeffreecoding/TetrisGame.git`;
+
+// Setup temp project directory and clone/update repositories
+console.log('Setting up temporary project directory...');
+if (!fs.existsSync(tempProjectDir)) {
+  fs.mkdirSync(tempProjectDir, { recursive: true });
+}
+
+// Handle JunlinsResumeWebsite repository
+if (!fs.existsSync(resumeProject)) {
+  console.log('Cloning JunlinsResumeWebsite repository...');
+  execSync(`git clone ${authenticatedResumeUrl}`, { cwd: tempProjectDir, stdio: 'inherit' });
+} else {
+  console.log('Updating JunlinsResumeWebsite repository...');
+  execSync('git fetch origin && git reset --hard origin/main', { cwd: resumeProject, stdio: 'inherit' });
+}
+
+// Handle TetrisGame repository
+if (!fs.existsSync(tetrisProject)) {
+  console.log('Cloning TetrisGame repository...');
+  execSync(`git clone ${authenticatedTetrisUrl}`, { cwd: tempProjectDir, stdio: 'inherit' });
+  console.log('Installing TetrisGame dependencies...');
+  execSync('npm install', { cwd: tetrisProject, stdio: 'inherit' });
+} else {
+  console.log('Updating TetrisGame repository...');
+  execSync('git fetch origin && git reset --hard origin/main', { cwd: tetrisProject, stdio: 'inherit' });
+  console.log('Installing/updating TetrisGame dependencies...');
+  execSync('npm install', { cwd: tetrisProject, stdio: 'inherit' });
+}
 
 console.log('Starting build process...');
 
@@ -60,4 +105,10 @@ try {
   console.error('Build failed:', error.message);
   process.exit(1);
 }
+
+
+
+
+
+
 
